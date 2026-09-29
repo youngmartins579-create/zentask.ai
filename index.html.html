@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenTask AI - Mindful Productivity & Smart Task Manager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zen: {
+                            50: '#f4f7f6',
+                            100: '#e3eae7',
+                            200: '#c7d7d2',
+                            300: '#a2beba',
+                            400: '#799f9a',
+                            500: '#5c847f',
+                            600: '#486b67',
+                            700: '#3c5754',
+                            800: '#344846',
+                            900: '#2e3d3b',
+                            950: '#141d1c'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(20, 29, 28, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .breathe-circle {
+            transition: transform 4s ease-in-out, background-color 4s ease-in-out, box-shadow 4s ease-in-out;
+        }
+        .breathe-inhale { transform: scale(1.35); }
+        .breathe-hold { transform: scale(1.35); }
+        .breathe-exhale { transform: scale(0.85); }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.6); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-30 glass-panel border-b border-slate-200/80 dark:border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-zen-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-zen-600/30">
+                <i class="fa-solid fa-sparkles text-lg animate-pulse"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="text-xl font-extrabold bg-gradient-to-r from-zen-700 via-teal-600 to-emerald-600 dark:from-zen-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
+                        ZenTask AI
+                    </h1>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        <i class="fa-solid fa-bolt mr-1 text-[9px]"></i>Gemini Powered
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Mindful Productivity & Smart Goal Decomposition</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Breathwork Button -->
+            <button onclick="toggleBreathworkModal()" class="px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-slate-800 hover:bg-teal-100 dark:hover:bg-slate-700 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-slate-700 text-xs font-semibold flex items-center space-x-2 transition-all">
+                <i class="fa-solid fa-wind text-teal-500 animate-pulse"></i>
+                <span class="hidden md:inline">Breathwork</span>
+            </button>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleDarkMode()" aria-label="Toggle Theme" class="p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-800 hover:bg-slate-300/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all">
+                <i class="fa-solid fa-moon text-sm dark:hidden"></i>
+                <i class="fa-solid fa-sun text-sm hidden dark:block text-amber-400"></i>
+            </button>
+
+            <!-- Quick Add Task Button -->
+            <button onclick="openTaskModal()" class="px-4 py-2 rounded-xl bg-zen-600 hover:bg-zen-700 text-white shadow-md shadow-zen-600/30 font-semibold text-xs sm:text-sm flex items-center space-x-2 transition-all active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span>New Task</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
+        <!-- LEFT COLUMN: Zen Motivation, AI Input & Productivity Overview (4 cols) -->
+        <section class="lg:col-span-4 flex flex-col space-y-6">
+            
+            <!-- AI NATURAL LANGUAGE QUICK ADD BAR -->
+            <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-zen-700 dark:text-zen-300 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                        <span>AI Smart Quick Task</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Natural Language</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Type any prompt like <em class="text-slate-700 dark:text-slate-300">"Submit tax document next Friday high priority"</em></p>
+                
+                <div class="flex space-x-2">
+                    <input type="text" id="aiQuickInput" placeholder="Describe your task..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500 transition-all">
+                    <button onclick="handleAIQuickAdd()" id="aiQuickBtn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-zen-600 to-teal-600 hover:from-zen-700 hover:to-teal-700 text-white font-semibold text-xs shadow-md shadow-zen-600/20 flex items-center justify-center space-x-1 transition-all active:scale-95">
+                        <i class="fa-solid fa-sparkles text-xs"></i>
+                        <span class="hidden sm:inline">Parse</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DAILY ZEN & AI MOTIVATIONAL COACH -->
+            <div class="glass-panel rounded-2xl p-6 shadow-sm relative overflow-hidden flex flex-col justify-between border border-zen-200/70 dark:border-slate-800">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-zen-400/10 dark:bg-zen-400/5 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-zen-100 dark:bg-zen-900/60 text-zen-700 dark:text-zen-300 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-sun-plant-wilt text-amber-500"></i>
+                            <span>Daily Zen & AI Coach</span>
+                        </span>
+                        <button onclick="generateZenQuoteAI()" id="aiQuoteRefreshBtn" title="Ask AI Coach for new inspiration" class="p-1.5 rounded-lg text-slate-400 hover:text-zen-600 dark:hover:text-zen-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center space-x-1 text-xs">
+                            <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                            <span>AI Coach</span>
+                        </button>
+                    </div>
+
+                    <blockquote class="my-3">
+                        <p id="zenQuoteText" class="font-serif italic text-lg sm:text-xl text-slate-800 dark:text-slate-100 leading-relaxed">
+                            "Peace comes from within. Do not seek it without."
+                        </p>
+                    </blockquote>
+                    <p id="zenQuoteAuthor" class="text-xs font-semibold text-zen-600 dark:text-zen-400 uppercase tracking-wider text-right mb-4">
+                        — Buddha
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                    <button onclick="copyZenQuote()" class="text-xs text-slate-500 dark:text-slate-400 hover:text-zen-600 dark:hover:text-zen-300 flex items-center space-x-1">
+                        <i class="fa-regular fa-copy"></i>
+                        <span id="copyBtnText">Copy Inspiration</span>
+                    </button>
+                    <span class="text-[11px] text-slate-400 italic">Mindful Pause</span>
+                </div>
+            </div>
+
+            <!-- PROGRESS & SCORECARD DASHBOARD -->
+            <div class="glass-panel rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-800">
+                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+                    <span>Productivity Dashboard</span>
+                    <i class="fa-solid fa-chart-line text-zen-500"></i>
+                </h3>
+
+                <!-- Completion Rate Progress -->
+                <div class="mb-5">
+                    <div class="flex justify-between text-xs font-semibold mb-1.5">
+                        <span class="text-slate-600 dark:text-slate-300">Completion Rate</span>
+                        <span id="progressPercentageText" class="text-zen-600 dark:text-zen-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-zen-500 to-emerald-400 h-full w-0 transition-all duration-500 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div class="bg-slate-100/70 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/80 text-center">
+                        <div class="text-xl font-extrabold text-slate-800 dark:text-slate-100" id="statCompleted">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Done</div>
+                    </div>
+                    <div class="bg-slate-100/70 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/80 text-center">
+                        <div class="text-xl font-extrabold text-amber-600 dark:text-amber-400" id="statPending">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Pending</div>
+                    </div>
+                    <div class="bg-slate-100/70 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/80 text-center">
+                        <div class="text-xl font-extrabold text-teal-600 dark:text-teal-400" id="statStreak">1 Day</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Streak</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Filters, Task Views & Task List (8 cols) -->
+        <section class="lg:col-span-8 flex flex-col space-y-4">
+            
+            <!-- Filters, Search & View Switcher -->
+            <div class="glass-panel rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-3">
+                
+                <!-- View Mode Switcher + Search Bar -->
+                <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+                    
+                    <!-- Search Input -->
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTasks()" placeholder="Search tasks, notes, or tags..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500 transition-all">
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <!-- Category Filter Dropdown -->
+                        <select id="categoryFilter" onchange="renderTasks()" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-zen-500">
+                            <option value="ALL">All Categories</option>
+                            <option value="Work">Work</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Mindfulness">Mindfulness</option>
+                            <option value="Health">Health</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Learning">Learning</option>
+                        </select>
+
+                        <!-- View Layout Toggle Tabs -->
+                        <div class="flex bg-slate-200/70 dark:bg-slate-800 p-1 rounded-xl">
+                            <button onclick="setViewMode('list')" id="viewBtn-list" title="List View" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 shadow-sm transition-all">
+                                <i class="fa-solid fa-list-ul"></i>
+                            </button>
+                            <button onclick="setViewMode('kanban')" id="viewBtn-kanban" title="Kanban Board View" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all">
+                                <i class="fa-solid fa-table-columns"></i>
+                            </button>
+                            <button onclick="setViewMode('agenda')" id="viewBtn-agenda" title="Daily Agenda" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all">
+                                <i class="fa-solid fa-calendar-day"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs for Quick Status Filter -->
+                <div class="flex items-center space-x-1 border-t border-slate-200/60 dark:border-slate-800 pt-3 overflow-x-auto no-scrollbar">
+                    <button onclick="setFilter('all')" id="filterBtn-all" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-zen-600 text-white whitespace-nowrap">
+                        All Tasks
+                    </button>
+                    <button onclick="setFilter('today')" id="filterBtn-today" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+                        Today
+                    </button>
+                    <button onclick="setFilter('active')" id="filterBtn-active" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+                        Active
+                    </button>
+                    <button onclick="setFilter('high_priority')" id="filterBtn-high_priority" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+                        High Priority
+                    </button>
+                    <button onclick="setFilter('completed')" id="filterBtn-completed" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+                        Completed
+                    </button>
+                </div>
+            </div>
+
+            <!-- TASK CONTAINERS (LIST, KANBAN, AGENDA) -->
+            <div id="listViewContainer" class="space-y-3 min-h-[300px]">
+                <!-- Rendered dynamically in JS -->
+            </div>
+
+            <!-- KANBAN BOARD CONTAINER -->
+            <div id="kanbanViewContainer" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[300px]">
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
+                        <span>To Do</span>
+                        <span id="kanbanCountTodo" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px]">0</span>
+                    </h4>
+                    <div id="kanbanColTodo" class="space-y-3 min-h-[200px]"></div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-amber-500 mb-3 flex items-center justify-between">
+                        <span>High Priority / Today</span>
+                        <span id="kanbanCountProgress" class="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-[10px]">0</span>
+                    </h4>
+                    <div id="kanbanColProgress" class="space-y-3 min-h-[200px]"></div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-500 mb-3 flex items-center justify-between">
+                        <span>Completed</span>
+                        <span id="kanbanCountDone" class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-[10px]">0</span>
+                    </h4>
+                    <div id="kanbanColDone" class="space-y-3 min-h-[200px]"></div>
+                </div>
+            </div>
+
+            <!-- AGENDA VIEW CONTAINER -->
+            <div id="agendaViewContainer" class="hidden space-y-4 min-h-[300px]">
+                <!-- Dynamic Agenda items -->
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-16 px-4 text-center glass-panel rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
+                <div class="w-16 h-16 rounded-full bg-zen-100 dark:bg-zen-900/50 flex items-center justify-center text-zen-600 dark:text-zen-400 mb-4 text-2xl">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">No tasks found</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                    Everything is calm and up-to-date. Take a deep breath or add a new goal.
+                </p>
+                <button onclick="openTaskModal()" class="mt-4 px-4 py-2 rounded-xl bg-zen-600 hover:bg-zen-700 text-white text-xs font-semibold shadow-md transition-all">
+                    Create Task
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- CREATE / EDIT TASK MODAL -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all scale-95 opacity-0 modal-container my-8 max-h-[90vh] flex flex-col">
+            
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 id="modalTitle" class="text-base font-bold text-slate-800 dark:text-slate-100">Create New Task</h3>
+                <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="taskForm" onsubmit="handleTaskSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
+                <input type="hidden" id="taskId">
+                
+                <!-- Title -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="taskTitleInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Task Title *</label>
+                        <button type="button" onclick="suggestTaskDetailsAI()" id="aiSuggestBtn" class="text-[11px] font-semibold text-zen-600 dark:text-zen-400 hover:underline flex items-center space-x-1">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                            <span>AI Assist Details</span>
+                        </button>
+                    </div>
+                    <input type="text" id="taskTitleInput" required placeholder="e.g., Prepare Q3 Financial Audit" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-zen-500">
+                </div>
+
+                <!-- Category & Priority Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="taskCategoryInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Category</label>
+                        <select id="taskCategoryInput" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500">
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Mindfulness">Mindfulness</option>
+                            <option value="Health">Health</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Learning">Learning</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="taskPriorityInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Priority</label>
+                        <select id="taskPriorityInput" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500">
+                            <option value="Low">Low Priority</option>
+                            <option value="Medium" selected>Medium Priority</option>
+                            <option value="High">High Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Due Date -->
+                <div>
+                    <label for="taskDueDateInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Due Date</label>
+                    <input type="date" id="taskDueDateInput" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500">
+                </div>
+
+                <!-- Subtasks & AI Breakdown -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Subtasks / Checklist</label>
+                        <button type="button" onclick="generateSubtasksAI()" id="aiBreakdownBtn" class="text-[11px] font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center space-x-1">
+                            <i class="fa-solid fa-diagram-project text-xs"></i>
+                            <span>AI Break Down Goal</span>
+                        </button>
+                    </div>
+
+                    <div id="modalSubtasksList" class="space-y-2 mb-2">
+                        <!-- Rendered Subtask Input items -->
+                    </div>
+
+                    <button type="button" onclick="addModalSubtaskRow()" class="text-xs text-zen-600 dark:text-zen-400 hover:underline font-semibold flex items-center space-x-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Add Subtask</span>
+                    </button>
+                </div>
+
+                <!-- Detailed Notes -->
+                <div>
+                    <label for="taskNotesInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Notes / Reflection</label>
+                    <textarea id="taskNotesInput" rows="3" placeholder="Add additional details, links, or instructions..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-zen-500 resize-none"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-3 flex justify-end space-x-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-zen-600 hover:bg-zen-700 text-white text-xs font-semibold shadow-md shadow-zen-600/30 transition-all">
+                        Save Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BREATHWORK / MINDFULNESS MODAL -->
+    <div id="breathModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center relative shadow-2xl">
+            <button onclick="toggleBreathworkModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <span class="px-3 py-1 rounded-full text-xs font-medium bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 inline-block mb-3">
+                4-7-8 Breathing Technique
+            </span>
+            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Mindful Break</h3>
+
+            <!-- Breathing Circle Animation -->
+            <div class="w-48 h-48 mx-auto my-6 rounded-full bg-gradient-to-tr from-zen-500/20 to-teal-400/20 border-2 border-zen-400/40 flex items-center justify-center relative">
+                <div id="breatheCircle" class="w-28 h-28 rounded-full bg-gradient-to-tr from-zen-500 to-teal-400 opacity-80 flex items-center justify-center shadow-lg shadow-zen-500/30 breathe-circle">
+                    <span id="breatheText" class="text-white font-bold text-sm tracking-wide">Inhale</span>
+                </div>
+            </div>
+
+            <p id="breatheInstruction" class="text-xs text-slate-500 dark:text-slate-400 my-4 h-8 flex items-center justify-center">
+                Press start to focus your breathing and clear mental fatigue.
+            </p>
+
+            <button id="breatheToggleBtn" onclick="toggleBreathingCycle()" class="w-full py-2.5 rounded-xl bg-zen-600 hover:bg-zen-700 text-white text-xs font-semibold shadow-md shadow-zen-600/30 transition-all">
+                Start Meditation
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl text-xs font-medium flex items-center space-x-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Task saved successfully!</span>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        const FALLBACK_QUOTES = [
+            { quote: "Peace comes from within. Do not seek it without.", author: "Buddha" },
+            { quote: "Focus on being productive instead of busy.", author: "Tim Ferriss" },
+            { quote: "Small daily improvements over time lead to stunning results.", author: "Robin Sharma" },
+            { quote: "Surrender to what is. Say 'yes' to life—and see how life starts working for you.", author: "Eckhart Tolle" },
+            { quote: "The secret of getting ahead is getting started.", author: "Mark Twain" }
+        ];
+
+        let tasks = JSON.parse(localStorage.getItem('zentask_tasks_v2')) || [
+            {
+                id: '1',
+                title: 'Design Q3 Growth Roadmap',
+                category: 'Work',
+                priority: 'High',
+                dueDate: new Date().toISOString().split('T')[0],
+                notes: 'Focus on scaling core user engagement metrics and mobile responsiveness.',
+                subtasks: [
+                    { id: 's1', title: 'Gather metric analytics', completed: true },
+                    { id: 's2', title: 'Draft key target milestones', completed: false }
+                ],
+                completed: false,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: '2',
+                title: 'Morning Mindful Breathing & Hydration',
+                category: 'Mindfulness',
+                priority: 'Medium',
+                dueDate: new Date().toISOString().split('T')[0],
+                notes: 'Take 10 deep breaths upon waking.',
+                subtasks: [],
+                completed: true,
+                createdAt: new Date(Date.now() - 86400000).toISOString()
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentViewMode = 'list'; // 'list' | 'kanban' | 'agenda'
+        let breathInterval = null;
+        let isBreathingActive = false;
+
+        // --- GEMINI API HELPER ---
+        async function callGeminiAPI(userPrompt, systemInstruction = "", isJsonSchema = false, jsonSchema = null) {
+            let apiKey = "";
+            if (window.window && window.window.webCodeCanvas && typeof window.window.webCodeCanvas.getGeminiApiKey === 'function') {
+                apiKey = window.window.webCodeCanvas.getGeminiApiKey() || "";
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }]
+            };
+
+            if (systemInstruction) {
+                payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+
+            if (isJsonSchema && jsonSchema) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: jsonSchema
+                };
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("API network error");
+
+                const result = await response.json();
+                const textOutput = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                return textOutput;
+            } catch (err) {
+                console.warn("Gemini API call skipped or failed. Using intelligent local fallback.", err);
+                return null;
+            }
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            initTheme();
+            generateZenQuoteAI();
+            renderTasks();
+        };
+
+        function saveTasksToStorage() {
+            localStorage.setItem('zentask_tasks_v2', JSON.stringify(tasks));
+        }
+
+        // --- THEME ---
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // --- AI NATURAL LANGUAGE QUICK ADD ---
+        async function handleAIQuickAdd() {
+            const input = document.getElementById('aiQuickInput');
+            const btn = document.getElementById('aiQuickBtn');
+            const rawText = input.value.trim();
+
+            if (!rawText) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs"></i>`;
+
+            const systemPrompt = `You are an AI task parser. Parse the user's natural language task input into structured JSON containing:
+            - title (string)
+            - category ("Work", "Personal", "Mindfulness", "Health", "Finance", "Learning")
+            - priority ("Low", "Medium", "High")
+            - dueDate (YYYY-MM-DD format if implied or today/future date, otherwise empty string)
+            - notes (string concise summary)`;
+
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    title: { type: "STRING" },
+                    category: { type: "STRING" },
+                    priority: { type: "STRING" },
+                    dueDate: { type: "STRING" },
+                    notes: { type: "STRING" }
+                },
+                required: ["title", "category", "priority"]
+            };
+
+            const response = await callGeminiAPI(rawText, systemPrompt, true, schema);
+            let newTaskObj = null;
+
+            if (response) {
+                try {
+                    newTaskObj = JSON.parse(response);
+                } catch (e) {
+                    newTaskObj = null;
+                }
+            }
+
+            // Fallback parser if API fails or offline
+            if (!newTaskObj) {
+                let prio = 'Medium';
+                if (rawText.toLowerCase().includes('high') || rawText.toLowerCase().includes('urgent')) prio = 'High';
+                if (rawText.toLowerCase().includes('low')) prio = 'Low';
+
+                let cat = 'Personal';
+                if (rawText.toLowerCase().includes('report') || rawText.toLowerCase().includes('email') || rawText.toLowerCase().includes('work') || rawText.toLowerCase().includes('presentation')) cat = 'Work';
+                if (rawText.toLowerCase().includes('walk') || rawText.toLowerCase().includes('exercise') || rawText.toLowerCase().includes('gym')) cat = 'Health';
+
+                newTaskObj = {
+                    title: rawText.replace(/(high priority|low priority|urgent)/gi, '').trim(),
+                    category: cat,
+                    priority: prio,
+                    dueDate: new Date().toISOString().split('T')[0],
+                    notes: "Created via quick parse"
+                };
+            }
+
+            const newTask = {
+                id: Date.now().toString(),
+                title: newTaskObj.title || rawText,
+                category: newTaskObj.category || 'Personal',
+                priority: newTaskObj.priority || 'Medium',
+                dueDate: newTaskObj.dueDate || '',
+                notes: newTaskObj.notes || '',
+                subtasks: [],
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.unshift(newTask);
+            saveTasksToStorage();
+            renderTasks();
+            
+            input.value = '';
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-sparkles text-xs"></i><span class="hidden sm:inline">Parse</span>`;
+            showToast("AI parsed and created task!");
+        }
+
+        // --- AI SUBTASK BREAKDOWN ---
+        async function generateSubtasksAI() {
+            const title = document.getElementById('taskTitleInput').value.trim();
+            const btn = document.getElementById('aiBreakdownBtn');
+
+            if (!title) {
+                showToast("Please type a task title first!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs"></i> Breaking down...`;
+
+            const systemPrompt = `Deconstruct the goal/task into 3 to 5 clear, concise subtasks. Return JSON array of strings.`;
+            const schema = {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            };
+
+            const response = await callGeminiAPI(`Goal: "${title}"`, systemPrompt, true, schema);
+            let items = [];
+
+            if (response) {
+                try {
+                    items = JSON.parse(response);
+                } catch (e) {
+                    items = [];
+                }
+            }
+
+            if (!items || items.length === 0) {
+                items = [
+                    `Research prerequisites for ${title}`,
+                    `Execute core implementation steps`,
+                    `Review and verify final outcome`
+                ];
+            }
+
+            items.forEach(item => addModalSubtaskRow(item));
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-diagram-project text-xs"></i> AI Break Down Goal`;
+            showToast("AI generated subtasks!");
+        }
+
+        // --- AI TASK DETAILS ASSISTANT ---
+        async function suggestTaskDetailsAI() {
+            const titleInput = document.getElementById('taskTitleInput');
+            const title = titleInput.value.trim();
+            const btn = document.getElementById('aiSuggestBtn');
+
+            if (!title) {
+                showToast("Please enter a title to analyze!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs"></i> Analyzing...`;
+
+            const systemPrompt = `Given a task title, categorize it into one of ("Work", "Personal", "Mindfulness", "Health", "Finance", "Learning") and pick priority ("Low", "Medium", "High"). Return JSON object.`;
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    category: { type: "STRING" },
+                    priority: { type: "STRING" }
+                },
+                required: ["category", "priority"]
+            };
+
+            const response = await callGeminiAPI(`Task: "${title}"`, systemPrompt, true, schema);
+            if (response) {
+                try {
+                    const parsed = JSON.parse(response);
+                    if (parsed.category) document.getElementById('taskCategoryInput').value = parsed.category;
+                    if (parsed.priority) document.getElementById('taskPriorityInput').value = parsed.priority;
+                    showToast("AI updated Category & Priority!");
+                } catch (e) {}
+            } else {
+                showToast("Auto-categorized!");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> AI Assist Details`;
+        }
+
+        // --- AI ZEN & MOTIVATIONAL COACH ---
+        async function generateZenQuoteAI() {
+            const quoteEl = document.getElementById('zenQuoteText');
+            const authorEl = document.getElementById('zenQuoteAuthor');
+            const btn = document.getElementById('aiQuoteRefreshBtn');
+
+            quoteEl.style.opacity = 0;
+            authorEl.style.opacity = 0;
+
+            if (btn) btn.disabled = true;
+
+            const pendingCount = tasks.filter(t => !t.completed).length;
+            const prompt = `Generate an inspiring, short motivational quote or mindfulness reflection for a user who currently has ${pendingCount} pending tasks. Return JSON object with keys "quote" and "author".`;
+            
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    quote: { type: "STRING" },
+                    author: { type: "STRING" }
+                },
+                required: ["quote", "author"]
+            };
+
+            const response = await callGeminiAPI(prompt, "You are a serene Zen & Mindful AI coach.", true, schema);
+            let quoteObj = null;
+
+            if (response) {
+                try {
+                    quoteObj = JSON.parse(response);
+                } catch (e) {
+                    quoteObj = null;
+                }
+            }
+
+            if (!quoteObj) {
+                quoteObj = FALLBACK_QUOTES[Math.floor(Math.random() * FALLBACK_QUOTES.length)];
+            }
+
+            setTimeout(() => {
+                quoteEl.textContent = `"${quoteObj.quote}"`;
+                authorEl.textContent = `— ${quoteObj.author}`;
+                quoteEl.style.opacity = 1;
+                authorEl.style.opacity = 1;
+                if (btn) btn.disabled = false;
+            }, 200);
+        }
+
+        function copyZenQuote() {
+            const quote = document.getElementById('zenQuoteText').textContent;
+            const author = document.getElementById('zenQuoteAuthor').textContent;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = `${quote} ${author}`;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast("Inspiration copied to clipboard!");
+        }
+
+        // --- VIEW MODE & FILTERS ---
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            ['list', 'kanban', 'agenda'].forEach(m => {
+                const btn = document.getElementById(`viewBtn-${m}`);
+                if (m === mode) {
+                    btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 shadow-sm transition-all";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all";
+                }
+            });
+
+            document.getElementById('listViewContainer').classList.toggle('hidden', mode !== 'list');
+            document.getElementById('kanbanViewContainer').classList.toggle('hidden', mode !== 'kanban');
+            document.getElementById('agendaViewContainer').classList.toggle('hidden', mode !== 'agenda');
+
+            renderTasks();
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                btn.classList.remove('bg-zen-600', 'text-white');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`filterBtn-${filter}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-zen-600', 'text-white');
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+            }
+
+            renderTasks();
+        }
+
+        function getFilteredTasks() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const categoryValue = document.getElementById('categoryFilter').value;
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            return tasks.filter(task => {
+                const matchesSearch = task.title.toLowerCase().includes(searchQuery) || 
+                                     (task.notes && task.notes.toLowerCase().includes(searchQuery));
+                const matchesCategory = categoryValue === 'ALL' || task.category === categoryValue;
+
+                let matchesFilter = true;
+                if (currentFilter === 'active') matchesFilter = !task.completed;
+                else if (currentFilter === 'completed') matchesFilter = task.completed;
+                else if (currentFilter === 'today') matchesFilter = task.dueDate === todayStr;
+                else if (currentFilter === 'high_priority') matchesFilter = task.priority === 'High';
+
+                return matchesSearch && matchesCategory && matchesFilter;
+            });
+        }
+
+        function renderTasks() {
+            const filtered = getFilteredTasks();
+            const emptyState = document.getElementById('emptyState');
+
+            updateStats();
+
+            if (filtered.length === 0) {
+                document.getElementById('listViewContainer').innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            if (currentViewMode === 'list') renderListView(filtered);
+            else if (currentViewMode === 'kanban') renderKanbanView(filtered);
+            else if (currentViewMode === 'agenda') renderAgendaView(filtered);
+        }
+
+        // 1. LIST VIEW RENDERER
+        function renderListView(filtered) {
+            const container = document.getElementById('listViewContainer');
+            container.innerHTML = filtered.map(task => createTaskCardHTML(task)).join('');
+        }
+
+        // 2. KANBAN VIEW RENDERER
+        function renderKanbanView(filtered) {
+            const todoCol = document.getElementById('kanbanColTodo');
+            const progressCol = document.getElementById('kanbanColProgress');
+            const doneCol = document.getElementById('kanbanColDone');
+
+            const todoTasks = filtered.filter(t => !t.completed && t.priority !== 'High');
+            const progressTasks = filtered.filter(t => !t.completed && t.priority === 'High');
+            const doneTasks = filtered.filter(t => t.completed);
+
+            document.getElementById('kanbanCountTodo').textContent = todoTasks.length;
+            document.getElementById('kanbanCountProgress').textContent = progressTasks.length;
+            document.getElementById('kanbanCountDone').textContent = doneTasks.length;
+
+            todoCol.innerHTML = todoTasks.map(t => createTaskCardHTML(t, true)).join('');
+            progressCol.innerHTML = progressTasks.map(t => createTaskCardHTML(t, true)).join('');
+            doneCol.innerHTML = doneTasks.map(t => createTaskCardHTML(t, true)).join('');
+        }
+
+        // 3. AGENDA VIEW RENDERER
+        function renderAgendaView(filtered) {
+            const container = document.getElementById('agendaViewContainer');
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            const todayTasks = filtered.filter(t => t.dueDate === todayStr);
+            const upcomingTasks = filtered.filter(t => t.dueDate && t.dueDate > todayStr);
+            const unscheduledTasks = filtered.filter(t => !t.dueDate);
+
+            container.innerHTML = `
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-zen-600 dark:text-zen-400 mb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <span>Today's Focus (${todayTasks.length})</span>
+                    </h4>
+                    <div class="space-y-3">
+                        ${todayTasks.length > 0 ? todayTasks.map(t => createTaskCardHTML(t)).join('') : '<p class="text-xs text-slate-400 italic">No tasks scheduled for today.</p>'}
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-calendar-week"></i>
+                        <span>Upcoming (${upcomingTasks.length})</span>
+                    </h4>
+                    <div class="space-y-3">
+                        ${upcomingTasks.length > 0 ? upcomingTasks.map(t => createTaskCardHTML(t)).join('') : '<p class="text-xs text-slate-400 italic">No upcoming tasks.</p>'}
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-inbox"></i>
+                        <span>Unscheduled / Backlog (${unscheduledTasks.length})</span>
+                    </h4>
+                    <div class="space-y-3">
+                        ${unscheduledTasks.length > 0 ? unscheduledTasks.map(t => createTaskCardHTML(t)).join('') : '<p class="text-xs text-slate-400 italic">No unscheduled tasks.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // TASK CARD TEMPLATE
+        function createTaskCardHTML(task, isCompact = false) {
+            const priorityColors = {
+                'High': 'bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border-rose-200 dark:border-rose-900',
+                'Medium': 'bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-900',
+                'Low': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900'
+            };
+
+            const subtasksCompleted = (task.subtasks || []).filter(s => s.completed).length;
+            const subtasksTotal = (task.subtasks || []).length;
+
+            return `
+                <div class="glass-panel p-4 rounded-2xl border ${task.completed ? 'opacity-60 bg-slate-100/50 dark:bg-slate-900/30' : ''} border-slate-200/80 dark:border-slate-800 hover:border-zen-300 transition-all group">
+                    <div class="flex items-start justify-between gap-3">
+                        <!-- Checkbox + Details -->
+                        <div class="flex items-start space-x-3 flex-1 min-w-0">
+                            <button onclick="toggleTaskComplete('${task.id}')" aria-label="Toggle Complete" class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-lg border-2 ${task.completed ? 'bg-zen-600 border-zen-600 text-white' : 'border-slate-300 dark:border-slate-700 hover:border-zen-500'} flex items-center justify-center transition-colors">
+                                ${task.completed ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                            </button>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'} break-words">
+                                    ${escapeHTML(task.title)}
+                                </h4>
+                                
+                                ${task.notes && !isCompact ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${escapeHTML(task.notes)}</p>` : ''}
+
+                                <!-- Subtasks Progress / List -->
+                                ${subtasksTotal > 0 ? `
+                                    <div class="mt-2.5 space-y-1">
+                                        <div class="flex items-center space-x-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                            <i class="fa-solid fa-list-check text-[10px]"></i>
+                                            <span>Subtasks (${subtasksCompleted}/${subtasksTotal})</span>
+                                        </div>
+                                        <div class="space-y-1 pl-1">
+                                            ${(task.subtasks || []).map(st => `
+                                                <div onclick="toggleSubtask('${task.id}', '${st.id}')" class="flex items-center space-x-2 text-xs cursor-pointer select-none text-slate-600 dark:text-slate-300 hover:text-zen-600">
+                                                    <i class="fa-regular ${st.completed ? 'fa-square-check text-zen-600' : 'fa-square text-slate-400'} text-xs"></i>
+                                                    <span class="${st.completed ? 'line-through opacity-60' : ''}">${escapeHTML(st.title)}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Badges / Meta Row -->
+                                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2.5">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                        ${task.category}
+                                    </span>
+
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold border ${priorityColors[task.priority]}">
+                                        ${task.priority}
+                                    </span>
+
+                                    ${task.dueDate ? `
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100/60 dark:bg-slate-800/60 flex items-center space-x-1">
+                                            <i class="fa-regular fa-calendar text-[9px]"></i>
+                                            <span>${task.dueDate}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center space-x-1">
+                            <button onclick="editTask('${task.id}')" title="Edit Task" class="p-1.5 rounded-lg text-slate-400 hover:text-zen-600 dark:hover:text-zen-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteTask('${task.id}')" title="Delete Task" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors">
+                                <i class="fa-regular fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- TASK CRUD OPERATIONS ---
+        function toggleTaskComplete(id) {
+            tasks = tasks.map(t => {
+                if (t.id === id) {
+                    const updatedStatus = !t.completed;
+                    if (updatedStatus && typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 50,
+                            spread: 60,
+                            origin: { y: 0.8 }
+                        });
+                    }
+                    return { ...t, completed: updatedStatus };
+                }
+                return t;
+            });
+            saveTasksToStorage();
+            renderTasks();
+            showToast("Task status updated!");
+        }
+
+        function toggleSubtask(taskId, subtaskId) {
+            tasks = tasks.map(t => {
+                if (t.id === taskId) {
+                    const updatedSubtasks = (t.subtasks || []).map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s);
+                    return { ...t, subtasks: updatedSubtasks };
+                }
+                return t;
+            });
+            saveTasksToStorage();
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasksToStorage();
+            renderTasks();
+            showToast("Task deleted");
+        }
+
+        // --- TASK MODAL & SUBTASK ROW HANDLING ---
+        function addModalSubtaskRow(title = '') {
+            const list = document.getElementById('modalSubtasksList');
+            const rowId = 'st_row_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = 'flex items-center space-x-2';
+            div.innerHTML = `
+                <input type="text" value="${escapeHTML(title)}" placeholder="Subtask detail..." class="modal-subtask-item flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-zen-500">
+                <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-slate-400 hover:text-rose-500 p-1">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            `;
+            list.appendChild(div);
+        }
+
+        function openTaskModal(taskId = null) {
+            const modal = document.getElementById('taskModal');
+            const modalContainer = modal.querySelector('.modal-container');
+            const subtasksList = document.getElementById('modalSubtasksList');
+            subtasksList.innerHTML = '';
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) return;
+                document.getElementById('modalTitle').textContent = "Edit Task";
+                document.getElementById('taskId').value = task.id;
+                document.getElementById('taskTitleInput').value = task.title;
+                document.getElementById('taskCategoryInput').value = task.category;
+                document.getElementById('taskPriorityInput').value = task.priority;
+                document.getElementById('taskDueDateInput').value = task.dueDate || '';
+                document.getElementById('taskNotesInput').value = task.notes || '';
+
+                (task.subtasks || []).forEach(st => addModalSubtaskRow(st.title));
+            } else {
+                document.getElementById('modalTitle').textContent = "Create New Task";
+                document.getElementById('taskForm').reset();
+                document.getElementById('taskId').value = '';
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContainer.classList.remove('scale-95', 'opacity-0');
+                modalContainer.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeTaskModal() {
+            const modal = document.getElementById('taskModal');
+            const modalContainer = modal.querySelector('.modal-container');
+            
+            modalContainer.classList.remove('scale-100', 'opacity-100');
+            modalContainer.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function editTask(id) {
+            openTaskModal(id);
+        }
+
+        function handleTaskSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('taskId').value;
+            const title = document.getElementById('taskTitleInput').value.trim();
+            const category = document.getElementById('taskCategoryInput').value;
+            const priority = document.getElementById('taskPriorityInput').value;
+            const dueDate = document.getElementById('taskDueDateInput').value;
+            const notes = document.getElementById('taskNotesInput').value.trim();
+
+            const subtaskInputs = document.querySelectorAll('.modal-subtask-item');
+            const subtasks = Array.from(subtaskInputs)
+                .map(i => i.value.trim())
+                .filter(val => val.length > 0)
+                .map((val, idx) => ({ id: 'st_' + idx + '_' + Date.now(), title: val, completed: false }));
+
+            if (!title) return;
+
+            if (id) {
+                tasks = tasks.map(t => t.id === id ? { ...t, title, category, priority, dueDate, notes, subtasks } : t);
+                showToast("Task updated!");
+            } else {
+                const newTask = {
+                    id: Date.now().toString(),
+                    title,
+                    category,
+                    priority,
+                    dueDate,
+                    notes,
+                    subtasks,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                tasks.unshift(newTask);
+                showToast("New task created!");
+            }
+
+            saveTasksToStorage();
+            renderTasks();
+            closeTaskModal();
+        }
+
+        // --- STATS ENGINE ---
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('statCompleted').textContent = completed;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('progressPercentageText').textContent = `${percent}%`;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        // --- BREATHWORK TIMER ---
+        function toggleBreathworkModal() {
+            const modal = document.getElementById('breathModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                stopBreathingCycle();
+                modal.classList.add('hidden');
+            }
+        }
+
+        function toggleBreathingCycle() {
+            const btn = document.getElementById('breatheToggleBtn');
+            if (isBreathingActive) {
+                stopBreathingCycle();
+            } else {
+                startBreathingCycle();
+                btn.textContent = "Stop Session";
+                btn.classList.replace('bg-zen-600', 'bg-rose-600');
+            }
+        }
+
+        function startBreathingCycle() {
+            isBreathingActive = true;
+            const circle = document.getElementById('breatheCircle');
+            const text = document.getElementById('breatheText');
+            const instruction = document.getElementById('breatheInstruction');
+
+            function runPhase() {
+                if (!isBreathingActive) return;
+
+                text.textContent = "Inhale";
+                instruction.textContent = "Inhale deeply through your nose...";
+                circle.className = "w-28 h-28 rounded-full bg-gradient-to-tr from-zen-500 to-teal-400 opacity-90 flex items-center justify-center shadow-lg breathe-circle breathe-inhale";
+
+                setTimeout(() => {
+                    if (!isBreathingActive) return;
+                    text.textContent = "Hold";
+                    instruction.textContent = "Hold your breath gently...";
+                    circle.className = "w-28 h-28 rounded-full bg-gradient-to-tr from-amber-500 to-teal-500 opacity-90 flex items-center justify-center shadow-lg breathe-circle breathe-hold";
+
+                    setTimeout(() => {
+                        if (!isBreathingActive) return;
+                        text.textContent = "Exhale";
+                        instruction.textContent = "Exhale completely through your mouth...";
+                        circle.className = "w-28 h-28 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-600 opacity-80 flex items-center justify-center shadow-lg breathe-circle breathe-exhale";
+                    }, 7000);
+                }, 4000);
+            }
+
+            runPhase();
+            breathInterval = setInterval(runPhase, 19000);
+        }
+
+        function stopBreathingCycle() {
+            isBreathingActive = false;
+            if (breathInterval) clearInterval(breathInterval);
+            const btn = document.getElementById('breatheToggleBtn');
+            const circle = document.getElementById('breatheCircle');
+            const text = document.getElementById('breatheText');
+            const instruction = document.getElementById('breatheInstruction');
+
+            if (btn) {
+                btn.textContent = "Start Meditation";
+                btn.classList.replace('bg-rose-600', 'bg-zen-600');
+            }
+            if (circle) circle.className = "w-28 h-28 rounded-full bg-gradient-to-tr from-zen-500 to-teal-400 opacity-80 flex items-center justify-center shadow-lg breathe-circle";
+            if (text) text.textContent = "Inhale";
+            if (instruction) instruction.textContent = "Press start to focus your breathing and clear mental fatigue.";
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            toastMsg.textContent = msg;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
